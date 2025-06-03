@@ -1,0 +1,148 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User Model
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String   // hashed password
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  createdQuestions Question[]
+  createdExams     Exam[]
+  attempts         Attempt[]
+  results          Result[]
+
+  @@map("users")
+}
+
+// Question Model
+model Question {
+  id            String         @id @default(cuid())
+  text          String
+  options       Json           // Array of possible answers with structure: [{id: string, text: string, isCorrect: boolean}]
+  correctAnswer String         // ID of the correct option
+  explanation   String?
+  category      String
+  difficulty    Difficulty     @default(MEDIUM)
+  createdById   String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relations
+  createdBy User @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  exams     ExamQuestion[]
+
+  @@map("questions")
+}
+
+// Exam Model
+model Exam {
+  id            String    @id @default(cuid())
+  title         String
+  description   String?
+  timeLimit     Int       // in minutes
+  passingScore  Int       @default(60) // percentage
+  availableFrom DateTime?
+  availableUntil DateTime?
+  isActive      Boolean   @default(true)
+  createdById   String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  createdBy User @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  questions ExamQuestion[]
+  attempts  Attempt[]
+  results   Result[]
+
+  @@map("exams")
+}
+
+// Junction table for Exam-Question many-to-many relationship
+model ExamQuestion {
+  id         String @id @default(cuid())
+  examId     String
+  questionId String
+  order      Int    @default(0) // Order of question in exam
+
+  // Relations
+  exam     Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  question Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([examId, questionId])
+  @@map("exam_questions")
+}
+
+// Attempt Model
+model Attempt {
+  id        String        @id @default(cuid())
+  studentId String
+  examId    String
+  startTime DateTime      @default(now())
+  endTime   DateTime?
+  answers   Json?         // mapping of question IDs to selected options: {questionId: selectedOptionId}
+  score     Int?          // calculated score
+  status    AttemptStatus @default(IN_PROGRESS)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  // Relations
+  student User   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  exam    Exam   @relation(fields: [examId], references: [id], onDelete: Cascade)
+  result  Result?
+
+  @@map("attempts")
+}
+
+// Result Model
+model Result {
+  id         String   @id @default(cuid())
+  attemptId  String   @unique
+  studentId  String
+  examId     String
+  score      Int      // raw score
+  percentage Float    // percentage score
+  passed     Boolean
+  feedback   String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  attempt Attempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  student User    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  exam    Exam    @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  @@map("results")
+}
+
+// Enums
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  COMPLETED
+  ABANDONED
+}

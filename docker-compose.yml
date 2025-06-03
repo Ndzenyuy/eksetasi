@@ -1,0 +1,34 @@
+# Docker Compose file for PostgreSQL database
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: mcq_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: mcq_user
+      POSTGRES_PASSWORD: mcq_password
+      POSTGRES_DB: mcq_exam_system
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mcq_user -d mcq_exam_system"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer
+    container_name: mcq_adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:

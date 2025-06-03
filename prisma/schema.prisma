@@ -54,6 +54,7 @@ model Exam {
   id            String    @id @default(cuid())
   title         String
   description   String?
+  instructions  String?   // Optional instructions for students
   timeLimit     Int       // in minutes
   passingScore  Int       @default(60) // percentage
   availableFrom DateTime?

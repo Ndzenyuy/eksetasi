@@ -41,8 +41,8 @@ Follow the detailed steps below if you prefer manual setup or encounter issues w
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd mcq-exam-system
+git clone https://github.com/YOUR_USERNAME/eksetasi.git
+cd eksetasi
 
 # Install Node.js dependencies
 npm install
@@ -64,10 +64,10 @@ docker-compose logs postgres
 
 ```bash
 # Create database (run in PostgreSQL shell)
-createdb mcq_exam_system
+createdb eksetasi
 
 # Or using SQL
-psql -U postgres -c "CREATE DATABASE mcq_exam_system;"
+psql -U postgres -c "CREATE DATABASE eksetasi;"
 ```
 
 ### 3. Environment Configuration
@@ -79,9 +79,14 @@ cp .env.example .env
 # Edit .env file with your database credentials
 # For Docker setup:
 DATABASE_URL="postgresql://eksetasi_user:eksetasi_password@localhost:5432/eksetasi?schema=public"
+JWT_SECRET="your-super-secure-jwt-secret-here"
 
 # For local PostgreSQL:
 DATABASE_URL="postgresql://your_username:your_password@localhost:5432/eksetasi?schema=public"
+JWT_SECRET="your-super-secure-jwt-secret-here"
+
+# Generate a secure JWT secret:
+# node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
 ```
 
 ### 4. Database Migration and Seeding
@@ -133,6 +138,8 @@ npm run db:studio       # Open Prisma Studio
 
 # Utilities
 npm run lint            # Run ESLint
+npm run type-check      # Check TypeScript
+npm run health          # Check application health
 ```
 
 ## 🐳 Docker Commands
@@ -148,7 +155,7 @@ docker-compose down
 docker-compose logs postgres
 
 # Access database shell
-docker-compose exec postgres psql -U mcq_user -d mcq_exam_system
+docker-compose exec postgres psql -U eksetasi_user -d eksetasi
 ```
 
 ## 🌐 Access Points
@@ -173,7 +180,7 @@ docker-compose ps
 **Error: "Database does not exist"**
 ```bash
 # Create database manually
-createdb mcq_exam_system
+createdb eksetasi
 
 # Or reset everything
 npx prisma migrate reset
@@ -242,12 +249,20 @@ npm start
 # Or deploy to Vercel/Netlify/etc.
 ```
 
-## 📚 Additional Resources
+## � CI/CD Setup
+
+For automated deployments, see:
+- **[GitHub Actions Guide](GITHUB_ACTIONS_GUIDE.md)** - Complete CI/CD setup
+- **[Activation Guide](activate-cicd.md)** - Step-by-step activation
+- **[VS Code Guide](QUICK_START_VSCODE.md)** - VS Code integration
+
+## �📚 Additional Resources
 
 - [Next.js Documentation](https://nextjs.org/docs)
 - [Prisma Documentation](https://www.prisma.io/docs)
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
 - [Docker Documentation](https://docs.docker.com/)
+- [Vercel Deployment](https://vercel.com/docs)
 
 ## 🆘 Getting Help
 
@@ -265,3 +280,25 @@ If you encounter issues:
 - Docker setup is recommended for development as it's more consistent across different systems
 - Make sure to change default passwords in production
 - Regular database backups are recommended for production use
+
+## 🎯 Quick Verification
+
+After setup, verify everything is working:
+
+```bash
+# Check if application starts
+npm run dev
+
+# Check database connection
+npm run health
+
+# Check if you can access the application
+# Visit: http://localhost:3000
+# Login with: admin@example.com / admin123
+```
+
+## 🔗 Related Documentation
+
+- **[Project Status](PROJECT_STATUS.md)** - Development progress
+- **[GitHub Actions Guide](GITHUB_ACTIONS_GUIDE.md)** - CI/CD setup
+- **[VS Code Guide](QUICK_START_VSCODE.md)** - Development environment

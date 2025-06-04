@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MCQ Exam System",
-  description: "Online Multiple Choice Question Examination Platform",
+  title: "Eksetasi",
+  description: "Modern Online Examination Platform",
 };
 
 export default function RootLayout({

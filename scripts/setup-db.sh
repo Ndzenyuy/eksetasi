@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Setting up PostgreSQL database for MCQ Exam System..."
+echo "🚀 Setting up PostgreSQL database for Eksetasi..."
 
 # Function to check if Docker is available
 check_docker() {
@@ -49,7 +49,7 @@ if [ "$USE_DOCKER" = true ]; then
 
     echo "⏳ Waiting for PostgreSQL to be ready..."
     timeout=60
-    while ! docker-compose exec postgres pg_isready -U mcq_user -d mcq_exam_system &> /dev/null; do
+    while ! docker-compose exec postgres pg_isready -U eksetasi_user -d eksetasi &> /dev/null; do
         sleep 2
         timeout=$((timeout - 2))
         if [ $timeout -le 0 ]; then

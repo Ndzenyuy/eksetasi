@@ -1,6 +1,6 @@
-# MCQ Exam System - Complete Setup Guide
+# Eksetasi - Complete Setup Guide
 
-This guide will walk you through setting up the MCQ Exam System with PostgreSQL database and all required dependencies.
+This guide will walk you through setting up Eksetasi with PostgreSQL database and all required dependencies.
 
 ## 🚀 Quick Start
 
@@ -78,10 +78,10 @@ cp .env.example .env
 
 # Edit .env file with your database credentials
 # For Docker setup:
-DATABASE_URL="postgresql://mcq_user:mcq_password@localhost:5432/mcq_exam_system?schema=public"
+DATABASE_URL="postgresql://eksetasi_user:eksetasi_password@localhost:5432/eksetasi?schema=public"
 
 # For local PostgreSQL:
-DATABASE_URL="postgresql://your_username:your_password@localhost:5432/mcq_exam_system?schema=public"
+DATABASE_URL="postgresql://your_username:your_password@localhost:5432/eksetasi?schema=public"
 ```
 
 ### 4. Database Migration and Seeding

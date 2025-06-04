@@ -4,12 +4,12 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
-    container_name: mcq_postgres
+    container_name: eksetasi_postgres
     restart: always
     environment:
-      POSTGRES_USER: mcq_user
-      POSTGRES_PASSWORD: mcq_password
-      POSTGRES_DB: mcq_exam_system
+      POSTGRES_USER: eksetasi_user
+      POSTGRES_PASSWORD: eksetasi_password
+      POSTGRES_DB: eksetasi
     ports:
       - "5432:5432"
     volumes:

@@ -1,5 +1,5 @@
 @echo off
-echo 🚀 Setting up PostgreSQL database for MCQ Exam System...
+echo 🚀 Setting up PostgreSQL database for Eksetasi...
 
 REM Check if .env file exists
 if not exist .env (

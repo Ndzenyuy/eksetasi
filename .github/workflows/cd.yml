@@ -11,7 +11,6 @@ on:
 
 env:
   NODE_VERSION: '20'
-  WORKING_DIRECTORY: 'mcq-exam-system'
 
 jobs:
   # Job 1: Deploy to Staging (on main branch)
@@ -22,7 +21,7 @@ jobs:
     environment: staging
     defaults:
       run:
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+        working-directory: mcq-exam-system
 
     steps:
       - name: Checkout code
@@ -33,7 +32,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/package-lock.json'
+          cache-dependency-path: 'package-lock.json'
 
       - name: Install dependencies
         run: npm ci
@@ -62,7 +61,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           scope: ${{ secrets.VERCEL_ORG_ID }}
-          working-directory: ${{ env.WORKING_DIRECTORY }}
+          working-directory: mcq-exam-system
 
   # Job 2: Deploy to Production (on tags)
   deploy-production:
@@ -72,7 +71,7 @@ jobs:
     environment: production
     defaults:
       run:
-        working-directory: ${{ env.WORKING_DIRECTORY }}
+        working-directory: mcq-exam-system
 
     steps:
       - name: Checkout code
@@ -83,7 +82,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/package-lock.json'
+          cache-dependency-path: 'package-lock.json'
 
       - name: Install dependencies
         run: npm ci
@@ -118,7 +117,7 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod'
           scope: ${{ secrets.VERCEL_ORG_ID }}
-          working-directory: ${{ env.WORKING_DIRECTORY }}
+          working-directory: mcq-exam-system
 
   # Job 3: Notify Deployment Status
   notify:

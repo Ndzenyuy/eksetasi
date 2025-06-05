@@ -11,6 +11,7 @@ on:
 
 env:
   NODE_VERSION: '20'
+  WORKING_DIRECTORY: 'mcq-exam-system'
 
 jobs:
   # Job 1: Deploy to Staging (on main branch)
@@ -19,6 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event.workflow_run.conclusion == 'success'
     environment: staging
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
     steps:
       - name: Checkout code
@@ -29,9 +33,16 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/package-lock.json'
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Setup environment
+        run: |
+          echo "DATABASE_URL=${{ secrets.STAGING_DATABASE_URL }}" >> .env
+          echo "JWT_SECRET=${{ secrets.STAGING_JWT_SECRET }}" >> .env
+          echo "NODE_ENV=production" >> .env
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -40,6 +51,7 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}
           JWT_SECRET: ${{ secrets.STAGING_JWT_SECRET }}
+          NODE_ENV: production
         run: npm run build
 
       - name: Deploy to Vercel (Staging)
@@ -50,6 +62,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           scope: ${{ secrets.VERCEL_ORG_ID }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
 
   # Job 2: Deploy to Production (on tags)
   deploy-production:
@@ -57,6 +70,9 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
     environment: production
+    defaults:
+      run:
+        working-directory: ${{ env.WORKING_DIRECTORY }}
 
     steps:
       - name: Checkout code
@@ -67,9 +83,16 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+          cache-dependency-path: '${{ env.WORKING_DIRECTORY }}/package-lock.json'
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Setup environment
+        run: |
+          echo "DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}" >> .env
+          echo "JWT_SECRET=${{ secrets.PRODUCTION_JWT_SECRET }}" >> .env
+          echo "NODE_ENV=production" >> .env
 
       - name: Generate Prisma client
         run: npx prisma generate
@@ -83,6 +106,7 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
           JWT_SECRET: ${{ secrets.PRODUCTION_JWT_SECRET }}
+          NODE_ENV: production
         run: npm run build
 
       - name: Deploy to Vercel (Production)
@@ -94,6 +118,7 @@ jobs:
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod'
           scope: ${{ secrets.VERCEL_ORG_ID }}
+          working-directory: ${{ env.WORKING_DIRECTORY }}
 
   # Job 3: Notify Deployment Status
   notify:
@@ -132,12 +157,20 @@ jobs:
       - name: Health check staging
         if: needs.deploy-staging.result == 'success'
         run: |
-          curl -f ${{ secrets.STAGING_URL }}/api/health || exit 1
-          echo "✅ Staging health check passed"
+          if [ -n "${{ secrets.STAGING_URL }}" ]; then
+            curl -f ${{ secrets.STAGING_URL }}/api/health || exit 1
+            echo "✅ Staging health check passed"
+          else
+            echo "⚠️ Staging URL not configured, skipping health check"
+          fi
 
       - name: Health check production
         if: needs.deploy-production.result == 'success'
         run: |
-          curl -f ${{ secrets.PRODUCTION_URL }}/api/health || exit 1
-          echo "✅ Production health check passed"
+          if [ -n "${{ secrets.PRODUCTION_URL }}" ]; then
+            curl -f ${{ secrets.PRODUCTION_URL }}/api/health || exit 1
+            echo "✅ Production health check passed"
+          else
+            echo "⚠️ Production URL not configured, skipping health check"
+          fi
 

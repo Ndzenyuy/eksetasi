@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import Question, { QuestionData } from '@/app/components/exam/Question';
-import ExamProgress from '@/app/components/exam/ExamProgress';
-import { Card, CardContent, CardHeader } from '@/app/components/ui/Card';
-import Button from '@/app/components/ui/Button';
+import React, { useState, useEffect, use } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Question, { QuestionData } from "@/app/components/exam/Question";
+import ExamProgress from "@/app/components/exam/ExamProgress";
+import { Card, CardContent, CardHeader } from "@/app/components/ui/Card";
+import Button from "@/app/components/ui/Button";
 
 interface ReviewQuestion extends QuestionData {
   userAnswer: string | null;
@@ -41,9 +41,9 @@ interface ExamReview {
 }
 
 interface ExamReviewPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function ExamReviewPage({ params }: ExamReviewPageProps) {
@@ -51,47 +51,53 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
   const [reviewData, setReviewData] = useState<ExamReview | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+
+  // Unwrap the params Promise
+  const { id } = use(params);
 
   useEffect(() => {
     const loadReviewData = async () => {
       try {
-        const response = await fetch(`/api/exams/${params.id}/review`);
+        const response = await fetch(`/api/exams/${id}/review`);
         const data = await response.json();
 
         if (response.ok) {
           setReviewData(data);
         } else {
           if (response.status === 401) {
-            router.push('/login');
+            router.push("/login");
             return;
           }
-          setError(data.message || 'Failed to load exam review');
+          setError(data.message || "Failed to load exam review");
         }
       } catch (err) {
-        console.error('Error loading review:', err);
-        setError('Failed to load exam review');
+        console.error("Error loading review:", err);
+        setError("Failed to load exam review");
       } finally {
         setLoading(false);
       }
     };
 
     loadReviewData();
-  }, [params.id, router]);
+  }, [id, router]);
 
   const handleQuestionSelect = (questionNumber: number) => {
     setCurrentQuestionIndex(questionNumber - 1);
   };
 
   const handleNext = () => {
-    if (reviewData && currentQuestionIndex < reviewData.exam.questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
+    if (
+      reviewData &&
+      currentQuestionIndex < reviewData.exam.questions.length - 1
+    ) {
+      setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
 
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
+      setCurrentQuestionIndex((prev) => prev - 1);
     }
   };
 
@@ -129,7 +135,9 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Review Not Available</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Review Not Available
+          </h1>
           <p className="mt-2 text-gray-600">Unable to load exam review data.</p>
           <Link href="/dashboard">
             <Button className="mt-4">Back to Dashboard</Button>
@@ -140,7 +148,9 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
   }
 
   const currentQuestion = reviewData.exam.questions[currentQuestionIndex];
-  const answeredQuestions = reviewData.exam.questions.map((_, index) => index + 1);
+  const answeredQuestions = reviewData.exam.questions.map(
+    (_, index) => index + 1
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -158,7 +168,7 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
             </div>
             <div className="flex items-center space-x-4">
               <Link
-                href={`/exams/${params.id}/results?score=${reviewData.result.score}`}
+                href={`/exams/${id}/results?score=${reviewData.result.score}`}
               >
                 <Button variant="outline">📊 View Results</Button>
               </Link>
@@ -253,7 +263,7 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
 
               <div className="flex space-x-3">
                 <Link
-                  href={`/exams/${params.id}/results?score=${reviewData.result.score}`}
+                  href={`/exams/${id}/results?score=${reviewData.result.score}`}
                 >
                   <Button variant="outline">📊 View Results</Button>
                 </Link>

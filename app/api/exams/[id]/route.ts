@@ -47,7 +47,11 @@ export async function GET(
     // Transform questions and remove correct answers for students taking the exam (not in review mode)
     const questionsToReturn = exam.questions.map(examQuestion => {
       const question = examQuestion.question;
-      const options = question.options as any[];
+      const options = question.options as Array<{
+        id: string;
+        text: string;
+        isCorrect: boolean;
+      }>;
 
       if (!includeAnswers) {
         return {

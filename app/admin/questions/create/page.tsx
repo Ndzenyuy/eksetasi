@@ -10,30 +10,35 @@ export default function CreateQuestionPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSubmit = async (questionData: any) => {
+  const handleSubmit = async (questionData: {
+    text: string;
+    options: Array<{ text: string; isCorrect: boolean }>;
+    correctAnswer: string;
+    explanation?: string;
+    category: string;
+    difficulty: "EASY" | "MEDIUM" | "HARD";
+  }) => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch('/api/admin/questions', {
-        method: 'POST',
+      const response = await fetch("/api/admin/questions", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(questionData),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create question');
+        throw new Error(errorData.message || "Failed to create question");
       }
 
-      const result = await response.json();
-      
       // Redirect to questions list with success message
-      router.push('/admin/questions?created=true');
+      router.push("/admin/questions?created=true");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }

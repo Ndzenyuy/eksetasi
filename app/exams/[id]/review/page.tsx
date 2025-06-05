@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import Question, { QuestionData } from '@/app/components/exam/Question';
-import ExamProgress from '@/app/components/exam/ExamProgress';
-import { Card, CardContent, CardHeader } from '@/app/components/ui/Card';
-import Button from '@/app/components/ui/Button';
+import React, { useState, useEffect, use } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Question, { QuestionData } from "@/app/components/exam/Question";
+import ExamProgress from "@/app/components/exam/ExamProgress";
+import { Card, CardContent, CardHeader } from "@/app/components/ui/Card";
+import Button from "@/app/components/ui/Button";
 
 interface ReviewQuestion extends QuestionData {
   userAnswer: string | null;
@@ -41,9 +41,9 @@ interface ExamReview {
 }
 
 interface ExamReviewPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 export default function ExamReviewPage({ params }: ExamReviewPageProps) {
@@ -51,47 +51,53 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
   const [reviewData, setReviewData] = useState<ExamReview | null>(null);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
+
+  // Unwrap the params Promise
+  const { id } = use(params);
 
   useEffect(() => {
     const loadReviewData = async () => {
       try {
-        const response = await fetch(`/api/exams/${params.id}/review`);
+        const response = await fetch(`/api/exams/${id}/review`);
         const data = await response.json();
 
         if (response.ok) {
           setReviewData(data);
         } else {
           if (response.status === 401) {
-            router.push('/login');
+            router.push("/login");
             return;
           }
-          setError(data.message || 'Failed to load exam review');
+          setError(data.message || "Failed to load exam review");
         }
       } catch (err) {
-        console.error('Error loading review:', err);
-        setError('Failed to load exam review');
+        console.error("Error loading review:", err);
+        setError("Failed to load exam review");
       } finally {
         setLoading(false);
       }
     };
 
     loadReviewData();
-  }, [params.id, router]);
+  }, [id, router]);
 
   const handleQuestionSelect = (questionNumber: number) => {
     setCurrentQuestionIndex(questionNumber - 1);
   };
 
   const handleNext = () => {
-    if (reviewData && currentQuestionIndex < reviewData.exam.questions.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
+    if (
+      reviewData &&
+      currentQuestionIndex < reviewData.exam.questions.length - 1
+    ) {
+      setCurrentQuestionIndex((prev) => prev + 1);
     }
   };
 
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
+      setCurrentQuestionIndex((prev) => prev - 1);
     }
   };
 
@@ -129,7 +135,9 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Review Not Available</h1>
+          <h1 className="text-2xl font-bold text-gray-900">
+            Review Not Available
+          </h1>
           <p className="mt-2 text-gray-600">Unable to load exam review data.</p>
           <Link href="/dashboard">
             <Button className="mt-4">Back to Dashboard</Button>
@@ -140,7 +148,9 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
   }
 
   const currentQuestion = reviewData.exam.questions[currentQuestionIndex];
-  const answeredQuestions = reviewData.exam.questions.map((_, index) => index + 1);
+  const answeredQuestions = reviewData.exam.questions.map(
+    (_, index) => index + 1
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -157,15 +167,13 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
               </p>
             </div>
             <div className="flex items-center space-x-4">
-              <Link href={`/exams/${params.id}/results?score=${reviewData.result.score}`}>
-                <Button variant="outline">
-                  📊 View Results
-                </Button>
+              <Link
+                href={`/exams/${id}/results?score=${reviewData.result.score}`}
+              >
+                <Button variant="outline">📊 View Results</Button>
               </Link>
               <Link href="/dashboard">
-                <Button>
-                  🏠 Dashboard
-                </Button>
+                <Button>🏠 Dashboard</Button>
               </Link>
             </div>
           </div>
@@ -180,7 +188,7 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
               question={currentQuestion}
               questionNumber={currentQuestionIndex + 1}
               totalQuestions={reviewData.exam.questions.length}
-              selectedAnswer={currentQuestion.userAnswer}
+              selectedAnswer={currentQuestion.userAnswer || undefined}
               onAnswerSelect={() => {}} // No-op in review mode
               showCorrectAnswer={true}
               isReviewMode={true}
@@ -196,29 +204,48 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="text-center">
-                    <div className={`text-2xl font-bold ${currentQuestion.isCorrect ? 'text-green-600' : 'text-red-600'}`}>
-                      {currentQuestion.isCorrect ? '✅' : '❌'}
+                    <div
+                      className={`text-2xl font-bold ${
+                        currentQuestion.isCorrect
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {currentQuestion.isCorrect ? "✅" : "❌"}
                     </div>
                     <div className="text-sm text-gray-600 mt-1">
-                      {currentQuestion.isCorrect ? 'Correct' : 'Incorrect'}
+                      {currentQuestion.isCorrect ? "Correct" : "Incorrect"}
                     </div>
                   </div>
-                  
+
                   <div className="text-center">
                     <div className="text-2xl font-bold text-blue-600">
-                      {currentQuestion.userAnswer ? 
-                        String.fromCharCode(65 + currentQuestion.options.findIndex(opt => opt.id === currentQuestion.userAnswer)) : 
-                        'N/A'
-                      }
+                      {currentQuestion.userAnswer
+                        ? String.fromCharCode(
+                            65 +
+                              currentQuestion.options.findIndex(
+                                (opt) => opt.id === currentQuestion.userAnswer
+                              )
+                          )
+                        : "N/A"}
                     </div>
-                    <div className="text-sm text-gray-600 mt-1">Your Answer</div>
+                    <div className="text-sm text-gray-600 mt-1">
+                      Your Answer
+                    </div>
                   </div>
-                  
+
                   <div className="text-center">
                     <div className="text-2xl font-bold text-green-600">
-                      {String.fromCharCode(65 + currentQuestion.options.findIndex(opt => opt.isCorrect))}
+                      {String.fromCharCode(
+                        65 +
+                          currentQuestion.options.findIndex(
+                            (opt) => opt.isCorrect
+                          )
+                      )}
                     </div>
-                    <div className="text-sm text-gray-600 mt-1">Correct Answer</div>
+                    <div className="text-sm text-gray-600 mt-1">
+                      Correct Answer
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -235,15 +262,18 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
               </Button>
 
               <div className="flex space-x-3">
-                <Link href={`/exams/${params.id}/results?score=${reviewData.result.score}`}>
-                  <Button variant="outline">
-                    📊 View Results
-                  </Button>
+                <Link
+                  href={`/exams/${id}/results?score=${reviewData.result.score}`}
+                >
+                  <Button variant="outline">📊 View Results</Button>
                 </Link>
-                
+
                 <Button
                   onClick={handleNext}
-                  disabled={currentQuestionIndex === reviewData.exam.questions.length - 1}
+                  disabled={
+                    currentQuestionIndex ===
+                    reviewData.exam.questions.length - 1
+                  }
                 >
                   Next Question →
                 </Button>
@@ -264,7 +294,13 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Score:</span>
-                    <span className={`font-bold ${reviewData.result.score >= 60 ? 'text-green-600' : 'text-red-600'}`}>
+                    <span
+                      className={`font-bold ${
+                        reviewData.result.score >= 60
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
                       {reviewData.result.score}%
                     </span>
                   </div>
@@ -274,22 +310,34 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Status:</span>
-                    <span className={`font-bold ${reviewData.result.passed ? 'text-green-600' : 'text-red-600'}`}>
-                      {reviewData.result.passed ? 'Passed' : 'Failed'}
+                    <span
+                      className={`font-bold ${
+                        reviewData.result.passed
+                          ? "text-green-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      {reviewData.result.passed ? "Passed" : "Failed"}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Correct:</span>
-                    <span className="font-bold text-green-600">{reviewData.result.correctAnswers}</span>
+                    <span className="font-bold text-green-600">
+                      {reviewData.result.correctAnswers}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Incorrect:</span>
-                    <span className="font-bold text-red-600">{reviewData.result.incorrectAnswers}</span>
+                    <span className="font-bold text-red-600">
+                      {reviewData.result.incorrectAnswers}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600">Submitted:</span>
                     <span className="font-medium text-sm">
-                      {new Date(reviewData.result.submittedAt).toLocaleDateString()}
+                      {new Date(
+                        reviewData.result.submittedAt
+                      ).toLocaleDateString()}
                     </span>
                   </div>
                 </div>
@@ -318,7 +366,9 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
                     <div
                       key={question.id}
                       className={`flex items-center justify-between p-2 rounded cursor-pointer ${
-                        index === currentQuestionIndex ? 'bg-blue-50 border border-blue-200' : 'hover:bg-gray-50'
+                        index === currentQuestionIndex
+                          ? "bg-blue-50 border border-blue-200"
+                          : "hover:bg-gray-50"
                       }`}
                       onClick={() => handleQuestionSelect(index + 1)}
                     >
@@ -326,7 +376,7 @@ export default function ExamReviewPage({ params }: ExamReviewPageProps) {
                         Question {index + 1}
                       </span>
                       <span className="text-lg">
-                        {question.isCorrect ? '✅' : '❌'}
+                        {question.isCorrect ? "✅" : "❌"}
                       </span>
                     </div>
                   ))}

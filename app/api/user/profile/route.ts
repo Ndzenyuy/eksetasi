@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth/session';
 import { prisma } from '@/lib/db';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Check if user is authenticated
     const session = await getSession();
     if (!session) {
       return NextResponse.json(
-        { message: 'Authentication required' },
+        { message: "Authentication required" },
         { status: 401 }
       );
     }
@@ -19,10 +19,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { message: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
     // Get user's exam results
@@ -42,32 +39,42 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
     // Calculate statistics
     const totalExamsTaken = userResults.length;
-    const totalExamsPassed = userResults.filter(result => result.passed).length;
-    const averageScore = totalExamsTaken > 0
-      ? Math.round(userResults.reduce((sum, result) => sum + result.percentage, 0) / totalExamsTaken)
-      : 0;
+    const totalExamsPassed = userResults.filter(
+      (result) => result.passed
+    ).length;
+    const averageScore =
+      totalExamsTaken > 0
+        ? Math.round(
+            userResults.reduce((sum, result) => sum + result.percentage, 0) /
+              totalExamsTaken
+          )
+        : 0;
 
     // Calculate total time spent (in minutes)
     const totalTimeSpent = userResults.reduce((sum, result) => {
       if (result.attempt?.startTime && result.attempt?.endTime) {
-        const timeSpentMs = new Date(result.attempt.endTime).getTime() - new Date(result.attempt.startTime).getTime();
+        const timeSpentMs =
+          new Date(result.attempt.endTime).getTime() -
+          new Date(result.attempt.startTime).getTime();
         return sum + Math.round(timeSpentMs / (1000 * 60)); // Convert to minutes
       }
       return sum;
     }, 0);
 
     // Transform results for response
-    const transformedResults = userResults.map(result => {
+    const transformedResults = userResults.map((result) => {
       // Calculate time spent for this attempt (in minutes)
       let timeSpent = 0;
       if (result.attempt?.startTime && result.attempt?.endTime) {
-        const timeSpentMs = new Date(result.attempt.endTime).getTime() - new Date(result.attempt.startTime).getTime();
+        const timeSpentMs =
+          new Date(result.attempt.endTime).getTime() -
+          new Date(result.attempt.startTime).getTime();
         timeSpent = Math.round(timeSpentMs / (1000 * 60)); // Convert to minutes
       }
 
@@ -81,7 +88,9 @@ export async function GET(request: NextRequest) {
         totalQuestions: result.score, // This is the raw score (number of correct answers)
         correctAnswers: result.score,
         timeSpent,
-        submittedAt: result.attempt?.endTime?.toISOString() || result.createdAt.toISOString(),
+        submittedAt:
+          result.attempt?.endTime?.toISOString() ||
+          result.createdAt.toISOString(),
       };
     });
 
@@ -90,11 +99,11 @@ export async function GET(request: NextRequest) {
 
     // Helper function to calculate grade
     function getGrade(score: number): string {
-      if (score >= 90) return 'A';
-      if (score >= 80) return 'B';
-      if (score >= 70) return 'C';
-      if (score >= 60) return 'D';
-      return 'F';
+      if (score >= 90) return "A";
+      if (score >= 80) return "B";
+      if (score >= 70) return "C";
+      if (score >= 60) return "D";
+      return "F";
     }
 
     return NextResponse.json(
@@ -110,7 +119,10 @@ export async function GET(request: NextRequest) {
         statistics: {
           totalExamsTaken,
           totalExamsPassed,
-          passRate: totalExamsTaken > 0 ? Math.round((totalExamsPassed / totalExamsTaken) * 100) : 0,
+          passRate:
+            totalExamsTaken > 0
+              ? Math.round((totalExamsPassed / totalExamsTaken) * 100)
+              : 0,
           averageScore,
           totalTimeSpent, // in minutes
         },
@@ -120,9 +132,9 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Get profile error:', error);
+    console.error("Get profile error:", error);
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }

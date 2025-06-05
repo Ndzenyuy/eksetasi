@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import UserTable from '@/app/components/admin/UserTable';
@@ -38,51 +38,44 @@ export default function UsersManagement() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [users, filters]);
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/users');
+      const response = await fetch("/api/admin/users");
       if (!response.ok) {
         if (response.status === 401) {
-          router.push('/login');
+          router.push("/login");
           return;
         }
         if (response.status === 403) {
-          router.push('/dashboard');
+          router.push("/dashboard");
           return;
         }
-        throw new Error('Failed to fetch users');
+        throw new Error("Failed to fetch users");
       }
       const data = await response.json();
       setUsers(data.users || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...users];
 
     // Search filter
     if (filters.search) {
-      filtered = filtered.filter(user =>
-        user.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        user.email.toLowerCase().includes(filters.search.toLowerCase())
+      filtered = filtered.filter(
+        (user) =>
+          user.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+          user.email.toLowerCase().includes(filters.search.toLowerCase())
       );
     }
 
     // Role filter
     if (filters.role) {
-      filtered = filtered.filter(user => user.role === filters.role);
+      filtered = filtered.filter((user) => user.role === filters.role);
     }
 
     // Date range filter
@@ -91,29 +84,37 @@ export default function UsersManagement() {
       let startDate: Date;
 
       switch (filters.dateRange) {
-        case 'week':
+        case "week":
           startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
           break;
-        case 'month':
+        case "month":
           startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
           break;
-        case 'quarter':
+        case "quarter":
           startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
           break;
-        case 'year':
+        case "year":
           startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
           break;
         default:
           startDate = new Date(0);
       }
 
-      filtered = filtered.filter(user =>
-        new Date(user.createdAt) >= startDate
+      filtered = filtered.filter(
+        (user) => new Date(user.createdAt) >= startDate
       );
     }
 
     setFilteredUsers(filtered);
-  };
+  }, [users, filters]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
 
   const handleFilterChange = (newFilters: Partial<Filters>) => {
     setFilters(prev => ({ ...prev, ...newFilters }));

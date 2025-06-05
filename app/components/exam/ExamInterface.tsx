@@ -82,22 +82,22 @@ export default function ExamInterface({
     }
   };
 
-  const handleTimeUp = useCallback(() => {
-    // Auto-submit when time is up
-    handleSubmit();
-  }, []);
-
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     setIsSubmitting(true);
     try {
       await onSubmit(answers);
     } catch (error) {
-      console.error('Error submitting exam:', error);
+      console.error("Error submitting exam:", error);
     } finally {
       setIsSubmitting(false);
       setShowSubmitModal(false);
     }
-  };
+  }, [onSubmit, answers]);
+
+  const handleTimeUp = useCallback(() => {
+    // Auto-submit when time is up
+    handleSubmit();
+  }, [handleSubmit]);
 
   const getSelectedAnswer = (questionId: string) => {
     return answers.find(a => a.questionId === questionId)?.selectedOption;

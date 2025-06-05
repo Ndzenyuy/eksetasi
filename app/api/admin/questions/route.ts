@@ -5,10 +5,10 @@ import { prisma } from '@/lib/db';
 import { questionSchema } from '@/lib/validations/exam';
 import { validateRequest } from '@/lib/validations/utils';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Check permission to manage questions
-    const accessError = await requirePermission('canManageQuestions');
+    const accessError = await requirePermission("canManageQuestions");
     if (accessError) {
       return accessError;
     }
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
@@ -39,9 +39,9 @@ export async function GET(request: NextRequest) {
       select: {
         category: true,
       },
-      distinct: ['category'],
+      distinct: ["category"],
       orderBy: {
-        category: 'asc',
+        category: "asc",
       },
     });
 
@@ -57,13 +57,13 @@ export async function GET(request: NextRequest) {
         name: true,
       },
       orderBy: {
-        name: 'asc',
+        name: "asc",
       },
     });
 
     return NextResponse.json(
       {
-        questions: questions.map(question => ({
+        questions: questions.map((question) => ({
           id: question.id,
           text: question.text,
           category: question.category,
@@ -73,16 +73,16 @@ export async function GET(request: NextRequest) {
           createdBy: question.createdBy,
           _count: question._count,
         })),
-        categories: categories.map(c => c.category),
+        categories: categories.map((c) => c.category),
         creators,
         total: questions.length,
       },
       { status: 200 }
     );
   } catch (error) {
-    console.error('Admin questions error:', error);
+    console.error("Admin questions error:", error);
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }

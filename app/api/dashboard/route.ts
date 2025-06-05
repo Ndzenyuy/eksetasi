@@ -1,14 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth/session';
-import { prisma } from '@/lib/db';
+import { NextResponse } from "next/server";
+import { getSession } from "@/lib/auth/session";
+import { prisma } from "@/lib/db";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Check if user is authenticated
     const session = await getSession();
     if (!session) {
       return NextResponse.json(
-        { message: 'Authentication required' },
+        { message: "Authentication required" },
         { status: 401 }
       );
     }
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
             question: true,
           },
           orderBy: {
-            order: 'asc',
+            order: "asc",
           },
         },
         createdBy: {
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
     const completedAttempts = await prisma.attempt.findMany({
       where: {
         studentId: session.userId,
-        status: 'COMPLETED',
+        status: "COMPLETED",
       },
       include: {
         exam: {
@@ -58,13 +58,13 @@ export async function GET(request: NextRequest) {
         result: true,
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
     // Calculate statistics
     const completedExamsCount = completedAttempts.length;
-    
+
     // Calculate average score from results
     let averageScore = 0;
     if (completedAttempts.length > 0) {
@@ -75,9 +75,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform available exams
-    const transformedExams = availableExams.map(exam => {
-      const categories = [...new Set(exam.questions.map(q => q.question.category))];
-      const difficulties = [...new Set(exam.questions.map(q => q.question.difficulty))];
+    const transformedExams = availableExams.map((exam) => {
+      const categories = [
+        ...new Set(exam.questions.map((q) => q.question.category)),
+      ];
+      const difficulties = [
+        ...new Set(exam.questions.map((q) => q.question.difficulty)),
+      ];
 
       return {
         id: exam.id,
@@ -85,8 +89,9 @@ export async function GET(request: NextRequest) {
         description: exam.description,
         duration: exam.timeLimit,
         totalQuestions: exam.questions.length,
-        difficulty: difficulties.length === 1 ? difficulties[0].toLowerCase() : 'mixed',
-        category: categories.join(', '),
+        difficulty:
+          difficulties.length === 1 ? difficulties[0].toLowerCase() : "mixed",
+        category: categories.join(", "),
         isActive: exam.isActive,
         createdAt: exam.createdAt.toISOString(),
         updatedAt: exam.updatedAt.toISOString(),
@@ -95,12 +100,13 @@ export async function GET(request: NextRequest) {
     });
 
     // Get recent exam results for additional context
-    const recentResults = completedAttempts.slice(0, 5).map(attempt => ({
+    const recentResults = completedAttempts.slice(0, 5).map((attempt) => ({
       id: attempt.id,
       examTitle: attempt.exam.title,
       score: attempt.result?.percentage || 0,
       passed: attempt.result?.passed || false,
-      completedAt: attempt.endTime?.toISOString() || attempt.createdAt.toISOString(),
+      completedAt:
+        attempt.endTime?.toISOString() || attempt.createdAt.toISOString(),
     }));
 
     return NextResponse.json(
@@ -121,9 +127,9 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Get dashboard data error:', error);
+    console.error("Get dashboard data error:", error);
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }
@@ -134,9 +140,9 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
     },
   });
 }

@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { requireAdminAccess, getUserPermissions } from '@/lib/auth/rbac';
-import { getSession } from '@/lib/auth/session';
-import { prisma } from '@/lib/db';
+import { NextResponse } from "next/server";
+import { requireAdminAccess, getUserPermissions } from "@/lib/auth/rbac";
+import { getSession } from "@/lib/auth/session";
+import { prisma } from "@/lib/db";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Check admin access
     const accessError = await requireAdminAccess();
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     const session = await getSession();
     if (!session) {
       return NextResponse.json(
-        { message: 'Authentication required' },
+        { message: "Authentication required" },
         { status: 401 }
       );
     }
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const permissions = await getUserPermissions();
     if (!permissions) {
       return NextResponse.json(
-        { message: 'Unable to determine permissions' },
+        { message: "Unable to determine permissions" },
         { status: 500 }
       );
     }
@@ -40,10 +40,7 @@ export async function GET(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { message: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
     // Calculate date ranges
@@ -66,7 +63,7 @@ export async function GET(request: NextRequest) {
       prisma.question.count(),
       prisma.exam.count(),
       prisma.attempt.count(),
-      
+
       // Recent counts (last 7 days)
       prisma.user.count({
         where: {
@@ -123,9 +120,9 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Admin dashboard error:', error);
+    console.error("Admin dashboard error:", error);
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }
@@ -136,9 +133,9 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
     },
   });
 }

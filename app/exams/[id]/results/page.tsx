@@ -129,10 +129,16 @@ export default function ExamResultsPage({ params }: ExamResultsPageProps) {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Result Status */}
         <div className="text-center mb-8">
-          <div className={`inline-flex items-center px-6 py-3 rounded-full text-lg font-semibold ${
-            result.passed ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-          }`}>
-            {result.passed ? '🎉 Congratulations! You Passed!' : '😔 You Did Not Pass'}
+          <div
+            className={`inline-flex items-center px-6 py-3 rounded-full text-lg font-semibold ${
+              result.passed
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
+            {result.passed
+              ? "🎉 Congratulations! You Passed!"
+              : "😔 You Did Not Pass"}
           </div>
         </div>
 
@@ -140,13 +146,19 @@ export default function ExamResultsPage({ params }: ExamResultsPageProps) {
         <Card className="mb-8">
           <CardContent className="text-center py-8">
             <div className="mb-4">
-              <div className={`text-6xl font-bold ${getScoreColor(result.score)}`}>
+              <div
+                className={`text-6xl font-bold ${getScoreColor(result.score)}`}
+              >
                 {result.score}%
               </div>
               <div className="text-xl text-gray-600 mt-2">Your Score</div>
             </div>
-            
-            <div className={`inline-flex items-center px-4 py-2 rounded-full text-2xl font-bold ${getGradeColor(result.grade)}`}>
+
+            <div
+              className={`inline-flex items-center px-4 py-2 rounded-full text-2xl font-bold ${getGradeColor(
+                result.grade
+              )}`}
+            >
               Grade: {result.grade}
             </div>
           </CardContent>
@@ -156,7 +168,9 @@ export default function ExamResultsPage({ params }: ExamResultsPageProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card>
             <CardHeader>
-              <h3 className="text-lg font-semibold text-gray-900">Performance Summary</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Performance Summary
+              </h3>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -166,15 +180,24 @@ export default function ExamResultsPage({ params }: ExamResultsPageProps) {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Correct Answers:</span>
-                  <span className="font-semibold text-green-600">{result.correctAnswers}</span>
+                  <span className="font-semibold text-green-600">
+                    {result.correctAnswers}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Incorrect Answers:</span>
-                  <span className="font-semibold text-red-600">{result.totalQuestions - result.correctAnswers}</span>
+                  <span className="font-semibold text-red-600">
+                    {result.totalQuestions - result.correctAnswers}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Accuracy:</span>
-                  <span className="font-semibold">{Math.round((result.correctAnswers / result.totalQuestions) * 100)}%</span>
+                  <span className="font-semibold">
+                    {Math.round(
+                      (result.correctAnswers / result.totalQuestions) * 100
+                    )}
+                    %
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -182,24 +205,33 @@ export default function ExamResultsPage({ params }: ExamResultsPageProps) {
 
           <Card>
             <CardHeader>
-              <h3 className="text-lg font-semibold text-gray-900">Exam Details</h3>
+              <h3 className="text-lg font-semibold text-gray-900">
+                Exam Details
+              </h3>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex justify-between">
                   <span className="text-gray-600">Time Spent:</span>
-                  <span className="font-semibold">{result.timeSpent} minutes</span>
+                  <span className="font-semibold">
+                    {result.timeSpent} minutes
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Completed At:</span>
                   <span className="font-semibold">
-                    {new Date(result.completedAt).toLocaleDateString()} {new Date(result.completedAt).toLocaleTimeString()}
+                    {new Date(result.completedAt).toLocaleDateString()}{" "}
+                    {new Date(result.completedAt).toLocaleTimeString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Status:</span>
-                  <span className={`font-semibold ${result.passed ? 'text-green-600' : 'text-red-600'}`}>
-                    {result.passed ? 'Passed' : 'Failed'}
+                  <span
+                    className={`font-semibold ${
+                      result.passed ? "text-green-600" : "text-red-600"
+                    }`}
+                  >
+                    {result.passed ? "Passed" : "Failed"}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -223,9 +255,11 @@ export default function ExamResultsPage({ params }: ExamResultsPageProps) {
             <div className="w-full bg-gray-200 rounded-full h-4">
               <div
                 className={`h-4 rounded-full transition-all duration-1000 ${
-                  result.score >= 80 ? 'bg-green-500' : 
-                  result.score >= 60 ? 'bg-yellow-500' : 
-                  'bg-red-500'
+                  result.score >= 80
+                    ? "bg-green-500"
+                    : result.score >= 60
+                    ? "bg-yellow-500"
+                    : "bg-red-500"
                 }`}
                 style={{ width: `${result.score}%` }}
               />
@@ -247,9 +281,7 @@ export default function ExamResultsPage({ params }: ExamResultsPageProps) {
           </Link>
 
           <Link href="/dashboard">
-            <Button className="w-full sm:w-auto">
-              🏠 Back to Dashboard
-            </Button>
+            <Button className="w-full sm:w-auto">🏠 Back to Dashboard</Button>
           </Link>
 
           {!result.passed && (
@@ -268,12 +300,11 @@ export default function ExamResultsPage({ params }: ExamResultsPageProps) {
               📚 Want to Learn More?
             </h3>
             <p className="text-gray-600 mb-4">
-              Review your answers with detailed explanations to understand the concepts better and improve your knowledge.
+              Review your answers with detailed explanations to understand the
+              concepts better and improve your knowledge.
             </p>
             <Link href={`/exams/${id}/review`}>
-              <Button variant="primary">
-                Start Review Session →
-              </Button>
+              <Button variant="primary">Start Review Session →</Button>
             </Link>
           </CardContent>
         </Card>
@@ -287,16 +318,18 @@ export default function ExamResultsPage({ params }: ExamResultsPageProps) {
                   🎉 Excellent Work!
                 </h3>
                 <p className="text-green-700">
-                  You've successfully completed this exam. Keep up the great work and continue learning!
+                  You&apos;ve successfully completed this exam. Keep up the
+                  great work and continue learning!
                 </p>
               </div>
             ) : (
               <div>
                 <h3 className="text-lg font-semibold text-red-800 mb-2">
-                  💪 Don't Give Up!
+                  💪 Don&apos;t Give Up!
                 </h3>
                 <p className="text-red-700">
-                  Learning is a journey. Review the material, practice more, and try again. You've got this!
+                  Learning is a journey. Review the material, practice more, and
+                  try again. You&apos;ve got this!
                 </p>
               </div>
             )}

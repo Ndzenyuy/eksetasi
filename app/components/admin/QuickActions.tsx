@@ -139,7 +139,8 @@ export default function QuickActions({ permissions }: QuickActionsProps) {
               No Actions Available
             </h4>
             <p className="text-sm text-gray-500">
-              You don't have permission to perform any administrative actions.
+              You don&apos;t have permission to perform any administrative
+              actions.
             </p>
           </div>
         )}
@@ -164,7 +165,7 @@ export default function QuickActions({ permissions }: QuickActionsProps) {
               href="/admin/changelog"
               className="block text-sm text-blue-600 hover:text-blue-800"
             >
-              📝 What's New
+              📝 What&apos;s New
             </Link>
           </div>
         </div>

@@ -14,9 +14,9 @@ jobs:
   lint:
     name: Code Quality & Linting
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: mcq-exam-system
+    # defaults:
+    #   run:
+    #     working-directory: mcq-exam-system
 
     steps:
       - name: Checkout code
@@ -42,9 +42,9 @@ jobs:
   security:
     name: Security Audit
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: mcq-exam-system
+    # defaults:
+    #   run:
+    #     working-directory: mcq-exam-system
 
     steps:
       - name: Checkout code
@@ -67,9 +67,9 @@ jobs:
   database:
     name: Database Tests
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: mcq-exam-system
+    # defaults:
+    #   run:
+    #     working-directory: mcq-exam-system
 
     services:
       postgres:
@@ -121,9 +121,9 @@ jobs:
     name: Build & Test Application
     runs-on: ubuntu-latest
     needs: [lint, security]
-    defaults:
-      run:
-        working-directory: mcq-exam-system
+    # defaults:
+    #   run:
+    #     working-directory: mcq-exam-system
 
     steps:
       - name: Checkout code

@@ -202,4 +202,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ![Prisma](https://img.shields.io/badge/Prisma-6-2D3748?logo=prisma)
 ![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-green?logo=github)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
-![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)#just a small change
+![Status](https://img.shields.io/badge/Status-Production%20Ready-brightgreen)

@@ -1,22 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getSession } from '@/lib/auth/session';
-import { prisma } from '@/lib/db';
+import { NextResponse } from "next/server";
+import { getSession } from "@/lib/auth/session";
+import { prisma } from "@/lib/db";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Check if user is authenticated
     const session = await getSession();
     if (!session) {
       return NextResponse.json(
-        { message: 'Authentication required' },
+        { message: "Authentication required" },
         { status: 401 }
       );
     }
 
     // Check if user is a teacher or admin
-    if (session.role !== 'TEACHER' && session.role !== 'ADMIN') {
+    if (session.role !== "TEACHER" && session.role !== "ADMIN") {
       return NextResponse.json(
-        { message: 'Access denied. Teacher privileges required.' },
+        { message: "Access denied. Teacher privileges required." },
         { status: 403 }
       );
     }
@@ -39,18 +39,18 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
     // Get all attempts for teacher's exams
-    const examIds = teacherExams.map(exam => exam.id);
+    const examIds = teacherExams.map((exam) => exam.id);
     const allAttempts = await prisma.attempt.findMany({
       where: {
         examId: {
           in: examIds,
         },
-        status: 'COMPLETED',
+        status: "COMPLETED",
       },
       include: {
         student: {
@@ -68,18 +68,20 @@ export async function GET(request: NextRequest) {
         result: true,
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
     // Calculate statistics
     const totalExams = teacherExams.length;
     const totalAttempts = allAttempts.length;
-    
+
     // Get unique students who have taken teacher's exams
-    const uniqueStudentIds = new Set(allAttempts.map(attempt => attempt.studentId));
+    const uniqueStudentIds = new Set(
+      allAttempts.map((attempt) => attempt.studentId)
+    );
     const totalStudents = uniqueStudentIds.size;
-    
+
     // Calculate average score
     let averageScore = 0;
     if (totalAttempts > 0) {
@@ -90,7 +92,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform recent exams
-    const recentExams = teacherExams.slice(0, 5).map(exam => ({
+    const recentExams = teacherExams.slice(0, 5).map((exam) => ({
       id: exam.id,
       title: exam.title,
       totalQuestions: exam.questions.length,
@@ -102,13 +104,14 @@ export async function GET(request: NextRequest) {
     }));
 
     // Transform recent attempts
-    const recentAttempts = allAttempts.slice(0, 10).map(attempt => ({
+    const recentAttempts = allAttempts.slice(0, 10).map((attempt) => ({
       id: attempt.id,
       studentName: attempt.student.name,
       examTitle: attempt.exam.title,
       score: attempt.result?.percentage || 0,
       passed: attempt.result?.passed || false,
-      completedAt: attempt.endTime?.toISOString() || attempt.createdAt.toISOString(),
+      completedAt:
+        attempt.endTime?.toISOString() || attempt.createdAt.toISOString(),
     }));
 
     return NextResponse.json(
@@ -130,9 +133,9 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Get teacher dashboard data error:', error);
+    console.error("Get teacher dashboard data error:", error);
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }
@@ -143,9 +146,9 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
     },
   });
 }

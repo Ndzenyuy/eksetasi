@@ -15,12 +15,23 @@ export async function GET(request: NextRequest) {
 
     // Get query parameters
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get('category');
-    const difficulty = searchParams.get('difficulty');
+    const category = searchParams.get("category");
     const isActive = searchParams.get('active');
 
     // Build where clause for filtering
-    const whereClause: any = {};
+    const whereClause: {
+      questions?: {
+        some: {
+          question: {
+            category: {
+              contains: string;
+              mode: "insensitive";
+            };
+          };
+        };
+      };
+      isActive?: boolean;
+    } = {};
 
     if (category) {
       whereClause.questions = {

@@ -65,8 +65,8 @@ export default function ExamHistoryTable({ results }: ExamHistoryTableProps) {
   };
 
   const sortedResults = [...results].sort((a, b) => {
-    let aValue: any = a[sortField];
-    let bValue: any = b[sortField];
+    let aValue: string | number = a[sortField];
+    let bValue: string | number = b[sortField];
 
     if (sortField === 'submittedAt') {
       aValue = new Date(aValue).getTime();

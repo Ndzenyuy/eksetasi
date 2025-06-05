@@ -124,12 +124,12 @@ export function canManageContent(userRole: UserRole, contentCreatorId: string, c
 }
 
 // Role hierarchy for user management
-export function canManageUserRole(managerRole: UserRole, targetRole: UserRole): boolean {
+export function canManageUserRole(managerRole: UserRole): boolean {
   // Only admins can manage users
-  if (managerRole !== 'ADMIN') {
+  if (managerRole !== "ADMIN") {
     return false;
   }
-  
+
   // Admins can manage all roles
   return true;
 }

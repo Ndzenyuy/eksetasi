@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import AdminStatsCard from '@/app/components/admin/AdminStatsCard';
-import RecentActivity from '@/app/components/admin/RecentActivity';
-import QuickActions from '@/app/components/admin/QuickActions';
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import AdminStatsCard from "@/app/components/admin/AdminStatsCard";
+import RecentActivity from "@/app/components/admin/RecentActivity";
+import QuickActions from "@/app/components/admin/QuickActions";
 
 interface AdminStats {
   totalUsers: number;
@@ -44,32 +44,32 @@ export default function AdminDashboard() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    fetchAdminData();
-  }, []);
-
-  const fetchAdminData = async () => {
+  const fetchAdminData = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/dashboard');
+      const response = await fetch("/api/admin/dashboard");
       if (!response.ok) {
         if (response.status === 401) {
-          router.push('/login');
+          router.push("/login");
           return;
         }
         if (response.status === 403) {
-          router.push('/dashboard');
+          router.push("/dashboard");
           return;
         }
-        throw new Error('Failed to fetch admin data');
+        throw new Error("Failed to fetch admin data");
       }
       const adminData = await response.json();
       setData(adminData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    fetchAdminData();
+  }, [fetchAdminData]);
 
   if (loading) {
     return (
@@ -101,7 +101,9 @@ export default function AdminDashboard() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900">Access Denied</h2>
-          <p className="text-gray-600 mt-2">You don't have permission to access the admin panel.</p>
+          <p className="text-gray-600 mt-2">
+            You don&apos;t have permission to access the admin panel.
+          </p>
           <Link
             href="/dashboard"
             className="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
@@ -120,7 +122,9 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+              <h1 className="text-3xl font-bold text-gray-900">
+                Admin Dashboard
+              </h1>
               <p className="mt-1 text-sm text-gray-500">
                 Welcome back, {data.user.name}! Manage your MCQ exam system.
               </p>
@@ -217,41 +221,91 @@ export default function AdminDashboard() {
         {/* Role-based Features */}
         <div className="mt-8">
           <div className="bg-white shadow rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">Your Permissions</h3>
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Your Permissions
+            </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              <div className={`p-3 rounded-lg ${data.permissions.canManageUsers ? 'bg-green-50 text-green-800' : 'bg-gray-50 text-gray-500'}`}>
+              <div
+                className={`p-3 rounded-lg ${
+                  data.permissions.canManageUsers
+                    ? "bg-green-50 text-green-800"
+                    : "bg-gray-50 text-gray-500"
+                }`}
+              >
                 <div className="flex items-center">
-                  <span className="mr-2">{data.permissions.canManageUsers ? '✅' : '❌'}</span>
+                  <span className="mr-2">
+                    {data.permissions.canManageUsers ? "✅" : "❌"}
+                  </span>
                   <span className="text-sm font-medium">Manage Users</span>
                 </div>
               </div>
-              <div className={`p-3 rounded-lg ${data.permissions.canManageQuestions ? 'bg-green-50 text-green-800' : 'bg-gray-50 text-gray-500'}`}>
+              <div
+                className={`p-3 rounded-lg ${
+                  data.permissions.canManageQuestions
+                    ? "bg-green-50 text-green-800"
+                    : "bg-gray-50 text-gray-500"
+                }`}
+              >
                 <div className="flex items-center">
-                  <span className="mr-2">{data.permissions.canManageQuestions ? '✅' : '❌'}</span>
+                  <span className="mr-2">
+                    {data.permissions.canManageQuestions ? "✅" : "❌"}
+                  </span>
                   <span className="text-sm font-medium">Manage Questions</span>
                 </div>
               </div>
-              <div className={`p-3 rounded-lg ${data.permissions.canManageExams ? 'bg-green-50 text-green-800' : 'bg-gray-50 text-gray-500'}`}>
+              <div
+                className={`p-3 rounded-lg ${
+                  data.permissions.canManageExams
+                    ? "bg-green-50 text-green-800"
+                    : "bg-gray-50 text-gray-500"
+                }`}
+              >
                 <div className="flex items-center">
-                  <span className="mr-2">{data.permissions.canManageExams ? '✅' : '❌'}</span>
+                  <span className="mr-2">
+                    {data.permissions.canManageExams ? "✅" : "❌"}
+                  </span>
                   <span className="text-sm font-medium">Manage Exams</span>
                 </div>
               </div>
-              <div className={`p-3 rounded-lg ${data.permissions.canViewAnalytics ? 'bg-green-50 text-green-800' : 'bg-gray-50 text-gray-500'}`}>
+              <div
+                className={`p-3 rounded-lg ${
+                  data.permissions.canViewAnalytics
+                    ? "bg-green-50 text-green-800"
+                    : "bg-gray-50 text-gray-500"
+                }`}
+              >
                 <div className="flex items-center">
-                  <span className="mr-2">{data.permissions.canViewAnalytics ? '✅' : '❌'}</span>
+                  <span className="mr-2">
+                    {data.permissions.canViewAnalytics ? "✅" : "❌"}
+                  </span>
                   <span className="text-sm font-medium">View Analytics</span>
                 </div>
               </div>
-              <div className={`p-3 rounded-lg ${data.permissions.canDeleteContent ? 'bg-green-50 text-green-800' : 'bg-gray-50 text-gray-500'}`}>
+              <div
+                className={`p-3 rounded-lg ${
+                  data.permissions.canDeleteContent
+                    ? "bg-green-50 text-green-800"
+                    : "bg-gray-50 text-gray-500"
+                }`}
+              >
                 <div className="flex items-center">
-                  <span className="mr-2">{data.permissions.canDeleteContent ? '✅' : '❌'}</span>
+                  <span className="mr-2">
+                    {data.permissions.canDeleteContent ? "✅" : "❌"}
+                  </span>
                   <span className="text-sm font-medium">Delete Content</span>
                 </div>
               </div>
-              <div className={`p-3 rounded-lg ${data.permissions.canModerateContent ? 'bg-green-50 text-green-800' : 'bg-gray-50 text-gray-500'}`}>
+              <div
+                className={`p-3 rounded-lg ${
+                  data.permissions.canModerateContent
+                    ? "bg-green-50 text-green-800"
+                    : "bg-gray-50 text-gray-500"
+                }`}
+              >
                 <div className="flex items-center">
-                  <span className="mr-2">{data.permissions.canModerateContent ? '✅' : '❌'}</span>
+                  <span className="mr-2">
+                    {data.permissions.canModerateContent ? "✅" : "❌"}
+                  </span>
                   <span className="text-sm font-medium">Moderate Content</span>
                 </div>
               </div>

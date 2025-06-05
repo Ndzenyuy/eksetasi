@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import ProfileForm from '@/app/components/profile/ProfileForm';
-import StatsCard from '@/app/components/profile/StatsCard';
-import RecentExams from '@/app/components/profile/RecentExams';
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import ProfileForm from "@/app/components/profile/ProfileForm";
+import StatsCard from "@/app/components/profile/StatsCard";
+import RecentExams from "@/app/components/profile/RecentExams";
 
 interface UserProfile {
   user: {
@@ -40,34 +40,37 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
-      const response = await fetch('/api/user/profile');
+      const response = await fetch("/api/user/profile");
       if (!response.ok) {
         if (response.status === 401) {
-          router.push('/login');
+          router.push("/login");
           return;
         }
-        throw new Error('Failed to fetch profile');
+        throw new Error("Failed to fetch profile");
       }
       const data = await response.json();
       setProfile(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
-  const handleProfileUpdate = (updatedUser: any) => {
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+  const handleProfileUpdate = (updatedUser: {
+    name?: string;
+    email?: string;
+  }) => {
     if (profile) {
       setProfile({
         ...profile,
-        user: { ...profile.user, ...updatedUser }
+        user: { ...profile.user, ...updatedUser },
       });
     }
   };
@@ -101,7 +104,9 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900">Profile not found</h2>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Profile not found
+          </h2>
         </div>
       </div>
     );
@@ -151,8 +156,8 @@ export default function ProfilePage() {
                 </p>
               </div>
               <div className="px-6 py-4">
-                <ProfileForm 
-                  user={profile.user} 
+                <ProfileForm
+                  user={profile.user}
                   onUpdate={handleProfileUpdate}
                 />
               </div>
@@ -221,7 +226,9 @@ export default function ProfilePage() {
                 <dl className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Email</dt>
-                    <dd className="mt-1 text-sm text-gray-900">{profile.user.email}</dd>
+                    <dd className="mt-1 text-sm text-gray-900">
+                      {profile.user.email}
+                    </dd>
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Role</dt>
@@ -230,15 +237,20 @@ export default function ProfilePage() {
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-sm font-medium text-gray-500">Member Since</dt>
+                    <dt className="text-sm font-medium text-gray-500">
+                      Member Since
+                    </dt>
                     <dd className="mt-1 text-sm text-gray-900">
                       {new Date(profile.user.createdAt).toLocaleDateString()}
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-sm font-medium text-gray-500">Total Study Time</dt>
+                    <dt className="text-sm font-medium text-gray-500">
+                      Total Study Time
+                    </dt>
                     <dd className="mt-1 text-sm text-gray-900">
-                      {Math.floor(profile.statistics.totalTimeSpent / 60)}h {profile.statistics.totalTimeSpent % 60}m
+                      {Math.floor(profile.statistics.totalTimeSpent / 60)}h{" "}
+                      {profile.statistics.totalTimeSpent % 60}m
                     </dd>
                   </div>
                 </dl>

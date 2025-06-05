@@ -20,7 +20,17 @@ interface Question {
 }
 
 interface CreateExamFormProps {
-  onSubmit: (examData: any) => void;
+  onSubmit: (examData: {
+    title: string;
+    description?: string;
+    instructions?: string;
+    timeLimit: number;
+    passingScore: number;
+    questionIds: string[];
+    isActive: boolean;
+    startDate?: string;
+    endDate?: string;
+  }) => void;
   loading: boolean;
 }
 

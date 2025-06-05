@@ -11,16 +11,26 @@ export default function CreateExamPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleSubmit = async (examData: any) => {
+  const handleSubmit = async (examData: {
+    title: string;
+    description?: string;
+    instructions?: string;
+    timeLimit: number;
+    passingScore: number;
+    questionIds: string[];
+    isActive: boolean;
+    startDate?: string;
+    endDate?: string;
+  }) => {
     setLoading(true);
     setError(null);
     setSuccess(null);
 
     try {
-      const response = await fetch('/api/admin/exams', {
-        method: 'POST',
+      const response = await fetch("/api/admin/exams", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(examData),
       });
@@ -28,15 +38,15 @@ export default function CreateExamPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to create exam');
+        throw new Error(data.message || "Failed to create exam");
       }
 
-      setSuccess('Exam created successfully!');
+      setSuccess("Exam created successfully!");
       setTimeout(() => {
-        router.push('/admin/exams');
+        router.push("/admin/exams");
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }

@@ -68,7 +68,11 @@ export async function GET(
     // Prepare questions with user answers and correct answers
     const questionsWithAnswers = exam.questions.map(examQuestion => {
       const question = examQuestion.question;
-      const options = question.options as any[];
+      const options = question.options as Array<{
+        id: string;
+        text: string;
+        isCorrect: boolean;
+      }>;
       const correctOption = options.find(opt => opt.isCorrect);
       const userAnswer = userAnswers[question.id];
       

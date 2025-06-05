@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import ExamHistoryTable from '@/app/components/profile/ExamHistoryTable';
@@ -56,56 +56,46 @@ export default function ExamHistoryPage() {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  useEffect(() => {
-    if (profile) {
-      applyFilters();
-    }
-  }, [profile, filters]);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
-      const response = await fetch('/api/user/profile');
+      const response = await fetch("/api/user/profile");
       if (!response.ok) {
         if (response.status === 401) {
-          router.push('/login');
+          router.push("/login");
           return;
         }
-        throw new Error('Failed to fetch profile');
+        throw new Error("Failed to fetch profile");
       }
       const data = await response.json();
       setProfile(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     if (!profile) return;
 
     let results = [...profile.allResults];
 
     // Search filter
     if (filters.search) {
-      results = results.filter(result =>
+      results = results.filter((result) =>
         result.examTitle.toLowerCase().includes(filters.search.toLowerCase())
       );
     }
 
     // Grade filter
     if (filters.grade) {
-      results = results.filter(result => result.grade === filters.grade);
+      results = results.filter((result) => result.grade === filters.grade);
     }
 
     // Pass/Fail filter
     if (filters.passed) {
-      const passed = filters.passed === 'true';
-      results = results.filter(result => result.passed === passed);
+      const passed = filters.passed === "true";
+      results = results.filter((result) => result.passed === passed);
     }
 
     // Date range filter
@@ -114,29 +104,39 @@ export default function ExamHistoryPage() {
       let startDate: Date;
 
       switch (filters.dateRange) {
-        case 'week':
+        case "week":
           startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
           break;
-        case 'month':
+        case "month":
           startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
           break;
-        case 'quarter':
+        case "quarter":
           startDate = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
           break;
-        case 'year':
+        case "year":
           startDate = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
           break;
         default:
           startDate = new Date(0);
       }
 
-      results = results.filter(result =>
-        new Date(result.submittedAt) >= startDate
+      results = results.filter(
+        (result) => new Date(result.submittedAt) >= startDate
       );
     }
 
     setFilteredResults(results);
-  };
+  }, [profile, filters]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
+
+  useEffect(() => {
+    if (profile) {
+      applyFilters();
+    }
+  }, [profile, applyFilters]);
 
   const handleFilterChange = (newFilters: Partial<Filters>) => {
     setFilters(prev => ({ ...prev, ...newFilters }));

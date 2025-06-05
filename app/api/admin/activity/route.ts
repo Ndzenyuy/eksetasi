@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { requireAdminAccess } from '@/lib/auth/rbac';
-import { prisma } from '@/lib/db';
+import { NextResponse } from "next/server";
+import { requireAdminAccess } from "@/lib/auth/rbac";
+import { prisma } from "@/lib/db";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Check admin access
     const accessError = await requireAdminAccess();
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     // Get recent user registrations
     const recentUsers = await prisma.user.findMany({
       take: 10,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       select: {
         id: true,
         name: true,
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
     // Get recent questions
     const recentQuestions = await prisma.question.findMany({
       take: 10,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       include: {
         createdBy: {
           select: {
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
     // Get recent exams
     const recentExams = await prisma.exam.findMany({
       take: 10,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       include: {
         createdBy: {
           select: {
@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
     // Get recent exam attempts
     const recentAttempts = await prisma.attempt.findMany({
       take: 10,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
       include: {
         student: {
           select: {
@@ -80,10 +80,10 @@ export async function GET(request: NextRequest) {
     // Combine and format activities
     const activities = [
       // User registrations
-      ...recentUsers.map(user => ({
+      ...recentUsers.map((user) => ({
         id: `user_${user.id}`,
-        type: 'user_registered' as const,
-        description: 'New user registered',
+        type: "user_registered" as const,
+        description: "New user registered",
         user: {
           name: user.name,
           email: user.email,
@@ -92,25 +92,27 @@ export async function GET(request: NextRequest) {
       })),
 
       // Question creations
-      ...recentQuestions.map(question => ({
+      ...recentQuestions.map((question) => ({
         id: `question_${question.id}`,
-        type: 'question_created' as const,
-        description: 'New question created',
+        type: "question_created" as const,
+        description: "New question created",
         user: {
           name: question.createdBy.name,
           email: question.createdBy.email,
         },
         timestamp: question.createdAt.toISOString(),
         metadata: {
-          questionText: question.text.substring(0, 100) + (question.text.length > 100 ? '...' : ''),
+          questionText:
+            question.text.substring(0, 100) +
+            (question.text.length > 100 ? "..." : ""),
         },
       })),
 
       // Exam creations
-      ...recentExams.map(exam => ({
+      ...recentExams.map((exam) => ({
         id: `exam_${exam.id}`,
-        type: 'exam_created' as const,
-        description: 'New exam created',
+        type: "exam_created" as const,
+        description: "New exam created",
         user: {
           name: exam.createdBy.name,
           email: exam.createdBy.email,
@@ -122,10 +124,10 @@ export async function GET(request: NextRequest) {
       })),
 
       // Exam attempts
-      ...recentAttempts.map(attempt => ({
+      ...recentAttempts.map((attempt) => ({
         id: `attempt_${attempt.id}`,
-        type: 'exam_taken' as const,
-        description: 'Exam completed',
+        type: "exam_taken" as const,
+        description: "Exam completed",
         user: {
           name: attempt.student.name,
           email: attempt.student.email,
@@ -133,14 +135,19 @@ export async function GET(request: NextRequest) {
         timestamp: attempt.createdAt.toISOString(),
         metadata: {
           examTitle: attempt.exam.title,
-          score: attempt.result ? Math.round(attempt.result.percentage) : undefined,
+          score: attempt.result
+            ? Math.round(attempt.result.percentage)
+            : undefined,
         },
       })),
     ];
 
     // Sort by timestamp (most recent first) and limit
     const sortedActivities = activities
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      .sort(
+        (a, b) =>
+          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+      )
       .slice(0, limit);
 
     return NextResponse.json(
@@ -151,9 +158,9 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Admin activity error:', error);
+    console.error("Admin activity error:", error);
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }
@@ -164,9 +171,9 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
     },
   });
 }

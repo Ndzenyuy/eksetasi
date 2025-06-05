@@ -1,11 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { requirePermission } from '@/lib/auth/rbac';
-import { prisma } from '@/lib/db';
+import { NextResponse } from "next/server";
+import { requirePermission } from "@/lib/auth/rbac";
+import { prisma } from "@/lib/db";
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     // Check permission to manage users (admin only)
-    const accessError = await requirePermission('canManageUsers');
+    const accessError = await requirePermission("canManageUsers");
     if (accessError) {
       return accessError;
     }
@@ -22,13 +22,13 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
     return NextResponse.json(
       {
-        users: users.map(user => ({
+        users: users.map((user) => ({
           id: user.id,
           name: user.name,
           email: user.email,
@@ -42,9 +42,9 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Admin users error:', error);
+    console.error("Admin users error:", error);
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }
@@ -55,9 +55,9 @@ export async function OPTIONS() {
   return new NextResponse(null, {
     status: 200,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
     },
   });
 }

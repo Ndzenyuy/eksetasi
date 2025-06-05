@@ -76,21 +76,33 @@ export default function ReviewResults({ result, questions }: ReviewResultsProps)
         </CardHeader>
         <CardContent>
           <div className="text-center mb-6">
-            <div className={`text-4xl font-bold ${getScoreColor(result.score)} mb-2`}>
+            <div
+              className={`text-4xl font-bold ${getScoreColor(
+                result.score
+              )} mb-2`}
+            >
               {result.score}%
             </div>
-            <div className={`inline-flex items-center px-3 py-1 rounded-full text-lg font-semibold ${getGradeColor(result.grade)}`}>
+            <div
+              className={`inline-flex items-center px-3 py-1 rounded-full text-lg font-semibold ${getGradeColor(
+                result.grade
+              )}`}
+            >
               Grade: {result.grade}
             </div>
           </div>
-          
+
           <div className="grid grid-cols-2 gap-4 text-center">
             <div className="p-3 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">{result.correctAnswers}</div>
+              <div className="text-2xl font-bold text-green-600">
+                {result.correctAnswers}
+              </div>
               <div className="text-sm text-green-600">Correct</div>
             </div>
             <div className="p-3 bg-red-50 rounded-lg">
-              <div className="text-2xl font-bold text-red-600">{result.incorrectAnswers}</div>
+              <div className="text-2xl font-bold text-red-600">
+                {result.incorrectAnswers}
+              </div>
               <div className="text-sm text-red-600">Incorrect</div>
             </div>
           </div>
@@ -100,9 +112,11 @@ export default function ReviewResults({ result, questions }: ReviewResultsProps)
             <div className="bg-gray-200 rounded-full h-3">
               <div
                 className={`h-3 rounded-full transition-all duration-1000 ${
-                  result.score >= 80 ? 'bg-green-500' : 
-                  result.score >= 60 ? 'bg-yellow-500' : 
-                  'bg-red-500'
+                  result.score >= 80
+                    ? "bg-green-500"
+                    : result.score >= 60
+                    ? "bg-yellow-500"
+                    : "bg-red-500"
                 }`}
                 style={{ width: `${result.score}%` }}
               />
@@ -127,27 +141,46 @@ export default function ReviewResults({ result, questions }: ReviewResultsProps)
           <CardContent>
             <div className="space-y-3">
               {Object.entries(difficultyStats).map(([difficulty, stats]) => {
-                const percentage = Math.round((stats.correct / stats.total) * 100);
+                const percentage = Math.round(
+                  (stats.correct / stats.total) * 100
+                );
                 const getDifficultyColor = (diff: string) => {
                   switch (diff) {
-                    case 'easy': return 'bg-green-500';
-                    case 'medium': return 'bg-yellow-500';
-                    case 'hard': return 'bg-red-500';
-                    default: return 'bg-gray-500';
+                    case "easy":
+                      return "bg-green-500";
+                    case "medium":
+                      return "bg-yellow-500";
+                    case "hard":
+                      return "bg-red-500";
+                    default:
+                      return "bg-gray-500";
                   }
                 };
 
                 return (
-                  <div key={difficulty} className="flex items-center justify-between">
+                  <div
+                    key={difficulty}
+                    className="flex items-center justify-between"
+                  >
                     <div className="flex items-center space-x-3">
-                      <div className={`w-3 h-3 rounded-full ${getDifficultyColor(difficulty)}`} />
-                      <span className="text-sm font-medium capitalize">{difficulty}</span>
+                      <div
+                        className={`w-3 h-3 rounded-full ${getDifficultyColor(
+                          difficulty
+                        )}`}
+                      />
+                      <span className="text-sm font-medium capitalize">
+                        {difficulty}
+                      </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-gray-600">
                         {stats.correct}/{stats.total}
                       </span>
-                      <span className={`text-sm font-medium ${getScoreColor(percentage)}`}>
+                      <span
+                        className={`text-sm font-medium ${getScoreColor(
+                          percentage
+                        )}`}
+                      >
                         {percentage}%
                       </span>
                     </div>
@@ -170,10 +203,15 @@ export default function ReviewResults({ result, questions }: ReviewResultsProps)
           <CardContent>
             <div className="space-y-3">
               {Object.entries(categoryStats).map(([category, stats]) => {
-                const percentage = Math.round((stats.correct / stats.total) * 100);
+                const percentage = Math.round(
+                  (stats.correct / stats.total) * 100
+                );
 
                 return (
-                  <div key={category} className="flex items-center justify-between">
+                  <div
+                    key={category}
+                    className="flex items-center justify-between"
+                  >
                     <div className="flex items-center space-x-3">
                       <div className="w-3 h-3 rounded-full bg-blue-500" />
                       <span className="text-sm font-medium">{category}</span>
@@ -182,7 +220,11 @@ export default function ReviewResults({ result, questions }: ReviewResultsProps)
                       <span className="text-sm text-gray-600">
                         {stats.correct}/{stats.total}
                       </span>
-                      <span className={`text-sm font-medium ${getScoreColor(percentage)}`}>
+                      <span
+                        className={`text-sm font-medium ${getScoreColor(
+                          percentage
+                        )}`}
+                      >
                         {percentage}%
                       </span>
                     </div>
@@ -206,26 +248,29 @@ export default function ReviewResults({ result, questions }: ReviewResultsProps)
             {result.score < 60 && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                 <p className="text-sm text-red-800">
-                  <strong>Focus on fundamentals:</strong> Your score indicates you need to review the basic concepts. 
-                  Consider retaking this exam after studying the material more thoroughly.
+                  <strong>Focus on fundamentals:</strong> Your score indicates
+                  you need to review the basic concepts. Consider retaking this
+                  exam after studying the material more thoroughly.
                 </p>
               </div>
             )}
-            
+
             {result.score >= 60 && result.score < 80 && (
               <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                 <p className="text-sm text-yellow-800">
-                  <strong>Good foundation:</strong> You have a solid understanding but there's room for improvement. 
-                  Review the questions you got wrong and practice similar problems.
+                  <strong>Good foundation:</strong> You have a solid
+                  understanding but there&apos;s room for improvement. Review
+                  the questions you got wrong and practice similar problems.
                 </p>
               </div>
             )}
-            
+
             {result.score >= 80 && (
               <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm text-green-800">
-                  <strong>Excellent work:</strong> You have a strong grasp of the material. 
-                  Consider taking more advanced exams to further challenge yourself.
+                  <strong>Excellent work:</strong> You have a strong grasp of
+                  the material. Consider taking more advanced exams to further
+                  challenge yourself.
                 </p>
               </div>
             )}
@@ -235,10 +280,14 @@ export default function ReviewResults({ result, questions }: ReviewResultsProps)
               const percentage = (stats.correct / stats.total) * 100;
               if (percentage < 60) {
                 return (
-                  <div key={difficulty} className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div
+                    key={difficulty}
+                    className="p-3 bg-blue-50 border border-blue-200 rounded-lg"
+                  >
                     <p className="text-sm text-blue-800">
-                      <strong>Focus on {difficulty} questions:</strong> You scored {Math.round(percentage)}% 
-                      on {difficulty} level questions. Consider reviewing these topics more carefully.
+                      <strong>Focus on {difficulty} questions:</strong> You
+                      scored {Math.round(percentage)}% on {difficulty} level
+                      questions. Consider reviewing these topics more carefully.
                     </p>
                   </div>
                 );

@@ -18,28 +18,27 @@ const createExamSchema = z.object({
 });
 
 // GET - Fetch all exams (for admin/teacher)
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const session = await getSession();
     if (!session) {
       return NextResponse.json(
-        { message: 'Authentication required' },
+        { message: "Authentication required" },
         { status: 401 }
       );
     }
 
     // Check if user has admin or teacher privileges
-    if (session.role !== 'ADMIN' && session.role !== 'TEACHER') {
+    if (session.role !== "ADMIN" && session.role !== "TEACHER") {
       return NextResponse.json(
-        { message: 'Access denied. Admin or teacher privileges required.' },
+        { message: "Access denied. Admin or teacher privileges required." },
         { status: 403 }
       );
     }
 
     // For teachers, only show their own exams. For admins, show all exams.
-    const whereClause = session.role === 'TEACHER' 
-      ? { createdById: session.userId }
-      : {};
+    const whereClause =
+      session.role === "TEACHER" ? { createdById: session.userId } : {};
 
     const exams = await prisma.exam.findMany({
       where: whereClause,
@@ -63,7 +62,7 @@ export async function GET(request: NextRequest) {
             },
           },
           orderBy: {
-            order: 'asc',
+            order: "asc",
           },
         },
         _count: {
@@ -73,12 +72,12 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
     // Transform the data for frontend consumption
-    const transformedExams = exams.map(exam => ({
+    const transformedExams = exams.map((exam) => ({
       id: exam.id,
       title: exam.title,
       description: exam.description,
@@ -93,7 +92,7 @@ export async function GET(request: NextRequest) {
       createdBy: exam.createdBy,
       questionCount: exam.questions.length,
       attemptCount: exam._count.attempts,
-      questions: exam.questions.map(eq => ({
+      questions: exam.questions.map((eq) => ({
         id: eq.question.id,
         text: eq.question.text,
         category: eq.question.category,
@@ -110,9 +109,9 @@ export async function GET(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error('Get exams error:', error);
+    console.error("Get exams error:", error);
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }
@@ -124,15 +123,15 @@ export async function POST(request: NextRequest) {
     const session = await getSession();
     if (!session) {
       return NextResponse.json(
-        { message: 'Authentication required' },
+        { message: "Authentication required" },
         { status: 401 }
       );
     }
 
     // Check if user has admin or teacher privileges
-    if (session.role !== 'ADMIN' && session.role !== 'TEACHER') {
+    if (session.role !== "ADMIN" && session.role !== "TEACHER") {
       return NextResponse.json(
-        { message: 'Access denied. Admin or teacher privileges required.' },
+        { message: "Access denied. Admin or teacher privileges required." },
         { status: 403 }
       );
     }
@@ -144,9 +143,9 @@ export async function POST(request: NextRequest) {
     if (!validationResult.success) {
       return NextResponse.json(
         {
-          message: 'Validation failed',
-          errors: validationResult.error.errors.map(err => ({
-            field: err.path.join('.'),
+          message: "Validation failed",
+          errors: validationResult.error.errors.map((err) => ({
+            field: err.path.join("."),
             message: err.message,
           })),
         },
@@ -160,7 +159,6 @@ export async function POST(request: NextRequest) {
       instructions,
       timeLimit,
       passingScore,
-      maxAttempts,
       questionIds,
       isActive,
       startDate,
@@ -181,7 +179,7 @@ export async function POST(request: NextRequest) {
 
     if (existingQuestions.length !== questionIds.length) {
       return NextResponse.json(
-        { message: 'One or more question IDs are invalid' },
+        { message: "One or more question IDs are invalid" },
         { status: 400 }
       );
     }
@@ -218,7 +216,7 @@ export async function POST(request: NextRequest) {
             question: true,
           },
           orderBy: {
-            order: 'asc',
+            order: "asc",
           },
         },
       },
@@ -226,7 +224,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        message: 'Exam created successfully',
+        message: "Exam created successfully",
         exam: {
           id: exam.id,
           title: exam.title,
@@ -238,9 +236,9 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error('Create exam error:', error);
+    console.error("Create exam error:", error);
     return NextResponse.json(
-      { message: 'Internal server error' },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }

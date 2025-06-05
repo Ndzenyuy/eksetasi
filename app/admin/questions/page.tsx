@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import QuestionTable from '@/app/components/admin/QuestionTable';
@@ -43,67 +43,74 @@ export default function QuestionsManagement() {
   const [creators, setCreators] = useState<Array<{ id: string; name: string }>>([]);
   const router = useRouter();
 
-  useEffect(() => {
-    fetchQuestions();
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [questions, filters]);
-
-  const fetchQuestions = async () => {
+  const fetchQuestions = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/questions');
+      const response = await fetch("/api/admin/questions");
       if (!response.ok) {
         if (response.status === 401) {
-          router.push('/login');
+          router.push("/login");
           return;
         }
         if (response.status === 403) {
-          router.push('/dashboard');
+          router.push("/dashboard");
           return;
         }
-        throw new Error('Failed to fetch questions');
+        throw new Error("Failed to fetch questions");
       }
       const data = await response.json();
       setQuestions(data.questions || []);
       setCategories(data.categories || []);
       setCreators(data.creators || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...questions];
 
     // Search filter
     if (filters.search) {
-      filtered = filtered.filter(question =>
-        question.text.toLowerCase().includes(filters.search.toLowerCase()) ||
-        question.category.toLowerCase().includes(filters.search.toLowerCase())
+      filtered = filtered.filter(
+        (question) =>
+          question.text.toLowerCase().includes(filters.search.toLowerCase()) ||
+          question.category.toLowerCase().includes(filters.search.toLowerCase())
       );
     }
 
     // Category filter
     if (filters.category) {
-      filtered = filtered.filter(question => question.category === filters.category);
+      filtered = filtered.filter(
+        (question) => question.category === filters.category
+      );
     }
 
     // Difficulty filter
     if (filters.difficulty) {
-      filtered = filtered.filter(question => question.difficulty === filters.difficulty);
+      filtered = filtered.filter(
+        (question) => question.difficulty === filters.difficulty
+      );
     }
 
     // Creator filter
     if (filters.createdBy) {
-      filtered = filtered.filter(question => question.createdBy.name === filters.createdBy);
+      filtered = filtered.filter(
+        (question) => question.createdBy.name === filters.createdBy
+      );
     }
 
     setFilteredQuestions(filtered);
-  };
+  }, [questions, filters]);
+
+  useEffect(() => {
+    fetchQuestions();
+  }, [fetchQuestions]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
 
   const handleFilterChange = (newFilters: Partial<Filters>) => {
     setFilters(prev => ({ ...prev, ...newFilters }));

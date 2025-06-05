@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import ExamTable from '@/app/components/admin/ExamTable';
-import ExamFilters from '@/app/components/admin/ExamFilters';
+import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import ExamTable from "@/app/components/admin/ExamTable";
+import ExamFilters from "@/app/components/admin/ExamFilters";
 
 interface Exam {
   id: string;
@@ -24,6 +24,8 @@ interface Exam {
     questions: number;
     attempts: number;
   };
+  questionCount: number;
+  attemptCount: number;
 }
 
 interface Filters {
@@ -36,125 +38,139 @@ export default function ExamsManagement() {
   const [exams, setExams] = useState<Exam[]>([]);
   const [filteredExams, setFilteredExams] = useState<Exam[]>([]);
   const [filters, setFilters] = useState<Filters>({
-    search: '',
-    isActive: '',
-    createdBy: '',
+    search: "",
+    isActive: "",
+    createdBy: "",
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [creators, setCreators] = useState<Array<{ id: string; name: string }>>([]);
+  const [creators, setCreators] = useState<Array<{ id: string; name: string }>>(
+    []
+  );
   const router = useRouter();
 
-  useEffect(() => {
-    fetchExams();
-  }, []);
-
-  useEffect(() => {
-    applyFilters();
-  }, [exams, filters]);
-
-  const fetchExams = async () => {
+  const fetchExams = useCallback(async () => {
     try {
-      const response = await fetch('/api/admin/exams');
+      const response = await fetch("/api/admin/exams");
       if (!response.ok) {
         if (response.status === 401) {
-          router.push('/login');
+          router.push("/login");
           return;
         }
         if (response.status === 403) {
-          router.push('/dashboard');
+          router.push("/dashboard");
           return;
         }
-        throw new Error('Failed to fetch exams');
+        throw new Error("Failed to fetch exams");
       }
       const data = await response.json();
       setExams(data.exams || []);
       setCreators(data.creators || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
 
-  const applyFilters = () => {
+  const applyFilters = useCallback(() => {
     let filtered = [...exams];
 
     // Search filter
     if (filters.search) {
-      filtered = filtered.filter(exam =>
-        exam.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-        (exam.description && exam.description.toLowerCase().includes(filters.search.toLowerCase()))
+      filtered = filtered.filter(
+        (exam) =>
+          exam.title.toLowerCase().includes(filters.search.toLowerCase()) ||
+          (exam.description &&
+            exam.description
+              .toLowerCase()
+              .includes(filters.search.toLowerCase()))
       );
     }
 
     // Active status filter
     if (filters.isActive) {
-      const isActive = filters.isActive === 'true';
-      filtered = filtered.filter(exam => exam.isActive === isActive);
+      const isActive = filters.isActive === "true";
+      filtered = filtered.filter((exam) => exam.isActive === isActive);
     }
 
     // Creator filter
     if (filters.createdBy) {
-      filtered = filtered.filter(exam => exam.createdBy.name === filters.createdBy);
+      filtered = filtered.filter(
+        (exam) => exam.createdBy.name === filters.createdBy
+      );
     }
 
     setFilteredExams(filtered);
-  };
+  }, [exams, filters]);
+
+  useEffect(() => {
+    fetchExams();
+  }, [fetchExams]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [applyFilters]);
 
   const handleFilterChange = (newFilters: Partial<Filters>) => {
-    setFilters(prev => ({ ...prev, ...newFilters }));
+    setFilters((prev) => ({ ...prev, ...newFilters }));
   };
 
   const clearFilters = () => {
     setFilters({
-      search: '',
-      isActive: '',
-      createdBy: '',
+      search: "",
+      isActive: "",
+      createdBy: "",
     });
   };
 
   const handleDeleteExam = async (examId: string) => {
-    if (!confirm('Are you sure you want to delete this exam? This action cannot be undone.')) {
+    if (
+      !confirm(
+        "Are you sure you want to delete this exam? This action cannot be undone."
+      )
+    ) {
       return;
     }
 
     try {
       const response = await fetch(`/api/admin/exams/${examId}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete exam');
+        throw new Error("Failed to delete exam");
       }
 
       // Remove exam from state
-      setExams(prev => prev.filter(e => e.id !== examId));
+      setExams((prev) => prev.filter((e) => e.id !== examId));
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to delete exam');
+      alert(err instanceof Error ? err.message : "Failed to delete exam");
     }
   };
 
   const handleToggleActive = async (examId: string, isActive: boolean) => {
     try {
       const response = await fetch(`/api/admin/exams/${examId}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ isActive }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update exam status');
+        throw new Error("Failed to update exam status");
       }
 
       // Update exam in state
-      setExams(prev => prev.map(exam => 
-        exam.id === examId ? { ...exam, isActive } : exam
-      ));
+      setExams((prev) =>
+        prev.map((exam) => (exam.id === examId ? { ...exam, isActive } : exam))
+      );
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to update exam status');
+      alert(
+        err instanceof Error ? err.message : "Failed to update exam status"
+      );
     }
   };
 
@@ -217,21 +233,27 @@ export default function ExamsManagement() {
         {/* Summary Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-2xl font-bold text-blue-600">{exams.length}</div>
+            <div className="text-2xl font-bold text-blue-600">
+              {exams.length}
+            </div>
             <div className="text-sm text-gray-600">Total Exams</div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
             <div className="text-2xl font-bold text-green-600">
-              {exams.filter(e => e.isActive).length}
+              {exams.filter((e) => e.isActive).length}
             </div>
             <div className="text-sm text-gray-600">Active Exams</div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-2xl font-bold text-purple-600">{creators.length}</div>
+            <div className="text-2xl font-bold text-purple-600">
+              {creators.length}
+            </div>
             <div className="text-sm text-gray-600">Contributors</div>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <div className="text-2xl font-bold text-orange-600">{filteredExams.length}</div>
+            <div className="text-2xl font-bold text-orange-600">
+              {filteredExams.length}
+            </div>
             <div className="text-sm text-gray-600">Filtered Results</div>
           </div>
         </div>

@@ -18,10 +18,8 @@ jobs:
     name: Deploy to Staging
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event.workflow_run.conclusion == 'success'
-    environment: staging
-    defaults:
-      run:
-        working-directory: mcq-exam-system
+    # environment: staging
+    
 
     steps:
       - name: Checkout code
@@ -55,13 +53,12 @@ jobs:
 
       - name: Deploy to Vercel (Staging)
         uses: amondnet/vercel-action@v25
-        if: ${{ secrets.VERCEL_TOKEN }}
+        # if: ${{ secrets.VERCEL_TOKEN }}
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           scope: ${{ secrets.VERCEL_ORG_ID }}
-          working-directory: mcq-exam-system
 
   # Job 2: Deploy to Production (on tags)
   deploy-production:
@@ -110,14 +107,13 @@ jobs:
 
       - name: Deploy to Vercel (Production)
         uses: amondnet/vercel-action@v25
-        if: ${{ secrets.VERCEL_TOKEN }}
+        # if: ${{ secrets.VERCEL_TOKEN }}
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           vercel-args: '--prod'
           scope: ${{ secrets.VERCEL_ORG_ID }}
-          working-directory: mcq-exam-system
 
   # Job 3: Notify Deployment Status
   notify:

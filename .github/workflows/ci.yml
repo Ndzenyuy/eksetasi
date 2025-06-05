@@ -155,8 +155,8 @@ jobs:
         with:
           name: build-files
           path: |
-            mcq-exam-system/.next/
-            mcq-exam-system/package.json
+            .next/
+            package.json
           retention-days: 1
 
   # Job 5: Build Summary

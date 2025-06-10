@@ -25,29 +25,35 @@ eksetasi/
 **File:** `.github/workflows/ci.yml`
 
 ### Triggers
+
 - Push to `main` or `develop` branches
 - Pull requests to `main` or `develop` branches
 
 ### Jobs
 
 #### 1. **Code Quality & Linting**
+
 - ESLint code quality checks
 - TypeScript type checking
 
 #### 2. **Security Audit**
+
 - npm audit for vulnerabilities
 - Dependency security scanning
 
 #### 3. **Database Tests**
+
 - PostgreSQL service setup
 - Database migration testing
 - Schema validation
 
 #### 4. **Build & Test**
+
 - Application build verification
 - Artifact generation for deployment
 
 #### 5. **Build Summary**
+
 - Overall pipeline status check
 - Success/failure reporting
 
@@ -56,27 +62,32 @@ eksetasi/
 **File:** `.github/workflows/cd.yml`
 
 ### Triggers
+
 - Successful CI pipeline completion on `main` branch
 - Git tags starting with `v` (e.g., `v1.0.0`)
 
 ### Jobs
 
 #### 1. **Deploy to Staging**
+
 - Automatic deployment on `main` branch
 - Vercel deployment for staging environment
 - Testing environment for validation
 
 #### 2. **Deploy to Production**
+
 - Manual approval required (GitHub Environments)
 - Triggered by version tags
 - Database migrations
 - Production deployment to Vercel
 
 #### 3. **Notification**
+
 - Deployment status notifications
 - Success/failure reporting
 
 #### 4. **Health Check**
+
 - Post-deployment health verification
 - API endpoint testing
 
@@ -85,6 +96,7 @@ eksetasi/
 ### 1. GitHub Repository Setup
 
 1. **Enable GitHub Actions**
+
    - Actions are enabled by default in most repositories
    - Check Settings > Actions > General
 
@@ -95,16 +107,16 @@ eksetasi/
    # Database URLs
    STAGING_DATABASE_URL=postgresql://user:pass@host:5432/staging_db
    PRODUCTION_DATABASE_URL=postgresql://user:pass@host:5432/prod_db
-   
+
    # JWT Secrets
    STAGING_JWT_SECRET=your-staging-jwt-secret
    PRODUCTION_JWT_SECRET=your-production-jwt-secret
-   
+
    # Vercel Deployment (if using Vercel)
    VERCEL_TOKEN=your-vercel-token
    VERCEL_ORG_ID=your-vercel-org-id
    VERCEL_PROJECT_ID=your-vercel-project-id
-   
+
    # Health Check URLs
    STAGING_URL=https://your-staging-domain.com
    PRODUCTION_URL=https://your-production-domain.com
@@ -118,6 +130,7 @@ eksetasi/
 ### 2. Environment Configuration
 
 1. **Copy environment template**
+
    ```bash
    cp .env.example .env
    ```
@@ -129,11 +142,13 @@ eksetasi/
 ### 3. Vercel Setup (Recommended for Next.js)
 
 1. **Install Vercel CLI**
+
    ```bash
    npm i -g vercel
    ```
 
 2. **Link your project**
+
    ```bash
    vercel link
    ```
@@ -149,6 +164,7 @@ eksetasi/
 ### Development to Production
 
 1. **Feature Development**
+
    ```bash
    git checkout -b feature/new-feature
    # Develop feature
@@ -157,11 +173,13 @@ eksetasi/
    ```
 
 2. **Code Review & Testing**
+
    - CI pipeline runs automatically on PR
    - Code review process
    - Merge to `main` branch
 
 3. **Staging Deployment**
+
    - Automatic deployment to staging on merge to `main`
    - Testing and validation in staging environment
 
@@ -177,6 +195,7 @@ eksetasi/
 ## 📊 Monitoring & Health Checks
 
 ### Health Check Endpoint
+
 The pipeline includes automated health checks using the `/api/health` endpoint:
 
 ```
@@ -184,6 +203,7 @@ GET /api/health
 ```
 
 Response:
+
 ```json
 {
   "status": "healthy",
@@ -212,21 +232,25 @@ Response:
 ### Common Issues
 
 #### 1. CI Pipeline Failures
+
 - **Linting errors**: Fix ESLint issues locally
 - **Type errors**: Fix TypeScript compilation errors
 - **Build failures**: Check build logs in Actions tab
 
 #### 2. Database Connection Issues
+
 - Verify `DATABASE_URL` secrets are correct
 - Ensure database is accessible from GitHub Actions
-- Check database migration files
+- Check database migration files....
 
 #### 3. Deployment Failures
+
 - Verify Vercel tokens and project configuration
 - Check environment variables in GitHub Secrets
 - Review deployment logs in Actions tab
 
 #### 4. Health Check Failures
+
 - Ensure health endpoint is accessible
 - Check application startup time
 - Verify database connectivity
@@ -234,11 +258,13 @@ Response:
 ### Debugging Steps
 
 1. **Check GitHub Actions logs**
+
    - Go to Actions tab in your repository
    - Click on failed workflow
    - Review step-by-step logs
 
 2. **Test locally**
+
    ```bash
    npm run lint
    npm run type-check
@@ -254,18 +280,21 @@ Response:
 ## 🔐 Security Best Practices
 
 ### Secrets Management
+
 - Never commit secrets to repository
 - Use GitHub Secrets for sensitive data
 - Rotate secrets regularly
 - Use environment-specific secrets
 
 ### Database Security
+
 - Use strong passwords
 - Enable SSL connections
 - Restrict database access
 - Regular security updates
 
 ### Application Security
+
 - Keep dependencies updated
 - Run security audits regularly
 - Use HTTPS for all environments
@@ -274,11 +303,13 @@ Response:
 ## 📈 Performance Optimization
 
 ### Build Optimization
+
 - Use npm ci for faster installs
 - Cache node_modules between runs
 - Optimize build artifacts
 
 ### Pipeline Optimization
+
 - Run jobs in parallel where possible
 - Use build artifacts between jobs
 - Minimize redundant operations
@@ -286,12 +317,14 @@ Response:
 ## 🔄 Continuous Improvement
 
 ### Metrics to Monitor
+
 - Build times
 - Deployment frequency
 - Failure rates
 - Recovery times
 
 ### Regular Tasks
+
 - Update GitHub Actions versions
 - Review and update dependencies
 - Optimize pipeline performance

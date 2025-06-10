@@ -153,6 +153,7 @@ Value: https://your-production-domain.vercel.app
 2. Create a new project
 3. Add PostgreSQL service
 4. Copy connection string
+   ..
 
 #### Option C: Supabase
 
